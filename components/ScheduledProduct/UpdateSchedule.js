@@ -56,7 +56,7 @@ const UpdateSchedule = ({ products, ...props }) => {
         await mergent.tasks.create({
           queue: 'scheduled_1',
           request: {
-            url: "/api/products/createProduct", // Replace with your cron job handler URL
+            url: "https://ecommerce-test-blond.vercel.app/api/products/createProduct", // Replace with your cron job handler URL
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(products), // Customize the body as needed
           },
