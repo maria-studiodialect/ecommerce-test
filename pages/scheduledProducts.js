@@ -3,16 +3,17 @@ import ProductItems from '../components/Products/ProductItems'
 import { useState, useEffect } from 'react'
 import ProductItemsSkeleton from '../components/Products/ProductItemsSkeleton'
 import ProductHeader from '../components/Products/ProductHeader'
-import AddProduct from '../components/Product/AddProduct'
+import AddProduct from '../components/ScheduledProduct/AddProduct'
+import UpdateSchedule from '../components/ScheduledProduct/UpdateSchedule'
 
-function Products() {
+function ScheduledProducts() {
   const [loading, setLoading] = useState(false)
   const [products, setProducts] = useState([])
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products/getProducts`);
+        const res = await fetch(`/api/scheduledProducts/getProducts`);
         const { data } = await res.json();
         setProducts(data);
       } catch (error) {
@@ -22,12 +23,14 @@ function Products() {
     };
     fetchData();
   }, []);
+
   return (
     <div>
       <header className="mt-3 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-700">Products</h1>
         <div className="flex items-center space-x-2">
           <AddProduct />
+          <UpdateSchedule products={products}/>
         </div>
       </header>
       <ProductHeader />
@@ -40,8 +43,8 @@ function Products() {
   )
 }
 
-export default Products
+export default ScheduledProducts
 
-Products.getLayout = function getLayout(page) {
-  return <Layout meta={{ name: 'Products' }}>{page}</Layout>
+ScheduledProducts.getLayout = function getLayout(page) {
+  return <Layout meta={{ name: 'Scheduled Products' }}>{page}</Layout>
 }

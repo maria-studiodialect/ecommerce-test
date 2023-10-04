@@ -4,7 +4,7 @@ const handler = async (req, res) => {
   // using update method to update records in database
   const { id, ...data } = req.body;
   try {
-    await xata.db.products.update(id, { ...data });
+    await xata.db.scheduledProducts.update(id, { ...data });
     res.json({ message: "Success 😁" });
   } catch (error) {
     console.log(error);

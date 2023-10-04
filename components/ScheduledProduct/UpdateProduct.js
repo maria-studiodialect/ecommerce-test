@@ -11,7 +11,7 @@ const UpdateProduct = ({ product, ...props }) => {
 
   const onFormSubmit = async (data) => {
     try {
-      await fetch(`/api/products/updateProduct`, {
+      await fetch(`/api/scheduledProducts/updateProduct`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

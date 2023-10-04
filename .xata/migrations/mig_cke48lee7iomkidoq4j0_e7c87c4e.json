@@ -1,0 +1,65 @@
+{
+  "id": "mig_cke48lee7iomkidoq4j0",
+  "checksum": "1:e7c87c4ec7a0c93854bba58500bccec1b68934a2aa9c9b1a9a6cee9b9757205b",
+  "operations": [
+    {
+      "addTable": {
+        "table": "products"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "name",
+          "type": "string"
+        },
+        "table": "products"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "description",
+          "type": "text"
+        },
+        "table": "products"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "price",
+          "type": "float"
+        },
+        "table": "products"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "stock",
+          "type": "int"
+        },
+        "table": "products"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "thumbnail",
+          "type": "string"
+        },
+        "table": "products"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "media",
+          "type": "multiple"
+        },
+        "table": "products"
+      }
+    }
+  ]
+}

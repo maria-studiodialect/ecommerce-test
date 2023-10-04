@@ -5,13 +5,26 @@ import { Close } from '../common/icons/Close'
 import ProductForm from '../ProductForm'
 
 const AddProduct = ({ props }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const handleClose = () => setIsOpen(false)
-  const handleOpen = () => setIsOpen(true)
-  const onFormSubmit = (data) => {
-    console.log(data)
-    handleClose()
-  }
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => setIsOpen(false);
+  const handleOpen = () => setIsOpen(true);
+  const onFormSubmit = async (data) => {
+    try {
+      await fetch(`/api/products/createProduct`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }).then(() => {
+        handleClose();
+        window.location.reload();
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   return (
     <>

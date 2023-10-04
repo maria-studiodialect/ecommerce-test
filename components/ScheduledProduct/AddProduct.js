@@ -10,7 +10,7 @@ const AddProduct = ({ props }) => {
   const handleOpen = () => setIsOpen(true);
   const onFormSubmit = async (data) => {
     try {
-      await fetch(`/api/products/createProduct`, {
+      await fetch(`/api/scheduledProducts/createProduct`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
