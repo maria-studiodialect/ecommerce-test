@@ -5,7 +5,7 @@ const handler = async (req, res) => {
   const query = req.query.location
 
   try {
-    const data = await xata.db.products.filter({ "location.id": query }).getAll();
+    const data = await xata.db.configProfiles.filter({ "location.id": query }).getAll();
     res.json({ message: "Success 😁", data });
   } catch (error) {
     res.status(500).json({ message: error.message, data: [] });

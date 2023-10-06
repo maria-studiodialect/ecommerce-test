@@ -12,7 +12,7 @@ function Products() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products/getProducts`);
+        const res = await fetch(`/api/products/getProducts?location=rec_ckfvcmde81akoi4ra9ag`);
         const { data } = await res.json();
         setProducts(data);
       } catch (error) {

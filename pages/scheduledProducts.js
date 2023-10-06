@@ -9,13 +9,62 @@ import UpdateSchedule from '../components/ScheduledProduct/UpdateSchedule'
 function ScheduledProducts() {
   const [loading, setLoading] = useState(false)
   const [products, setProducts] = useState([])
+  const [originalProducts, setOriginalProducts] = useState([])
+  const [profiles, setProfiles] = useState([])
+  const [originalProfiles, setOriginalProfiles] = useState([])
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/scheduledProducts/getProducts`);
+        const res = await fetch(`/api/products/getProducts?location=rec_ckfvcovuh5vee35u25vg`);
         const { data } = await res.json();
         setProducts(data);
+      } catch (error) {
+        console.log(error);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/products/getProducts?location=rec_ckfvcmde81akoi4ra9ag`);
+        const { data } = await res.json();
+        setOriginalProducts(data);
+      } catch (error) {
+        console.log(error);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/configProfiles/getProfiles?location=rec_ckfvcovuh5vee35u25vg`);
+        const { data } = await res.json();
+        setProfiles(data);
+      } catch (error) {
+        console.log(error);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/configProfiles/getProfiles?location=rec_ckfvcmde81akoi4ra9ag`);
+        const { data } = await res.json();
+        setOriginalProfiles(data);
       } catch (error) {
         console.log(error);
       }
@@ -30,14 +79,16 @@ function ScheduledProducts() {
         <h1 className="text-2xl font-bold text-gray-700">Products</h1>
         <div className="flex items-center space-x-2">
           <AddProduct />
-          <UpdateSchedule products={products}/>
+          <UpdateSchedule products={products} location='rec_ckfvcovuh5vee35u25vg' originalProducts={originalProducts} profiles={profiles} originalProfiles={originalProfiles }/>
         </div>
       </header>
       <ProductHeader />
       {loading ? (
         <ProductItemsSkeleton />
       ) : (
-        <ProductItems products={products} />
+        <>
+          <ProductItems products={products} />
+        </>
       )}
     </div>
   )

@@ -3,14 +3,24 @@ import React, { Fragment, useState } from 'react'
 import Button from '../common/Button'
 import { Close } from '../common/icons/Close'
 import ProductForm from '../ProductForm'
+import Mergent from 'mergent'
 
-const UpdateSchedule = ({ products, ...props }) => {
+const UpdateSchedule = ({ products, originalProducts, profiles, originalProfiles, location, liveLocation, ...props }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [date, setDate] = useState(null)
   const handleClose = () => setIsOpen(false)
   const handleOpen = () => setIsOpen(true)
 
   const Mergent = require("mergent");
+
+  const productsWithoutScheduleDate = products.map(product => {
+    // Destructure the product and create a new object without the scheduleDate property
+    const { scheduleDate, ...newProduct } = product;
+    return newProduct;
+  });
+
+  const productIds = originalProducts.map(item => item.id);
+
   const onFormSubmit = async (e) => {
     e.preventDefault();
     const inputDate = new Date(date);
@@ -19,54 +29,103 @@ const UpdateSchedule = ({ products, ...props }) => {
     console.log(formattedDate);
 
     try {
-      for (const product of products) {
-        await fetch(`/api/scheduledProducts/updateProduct`, {
+        await fetch(`/api/locations/updateLocation`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id: product.id, scheduleDate: formattedDate }),
+          body: JSON.stringify({ id: location, scheduleDate: formattedDate }),
         });
-      }
 
-      /*
-      const existingTask = await mergent.tasks.find({
-        request: {
-          url: "YOUR_CRON_JOB_HANDLER_URL", // Replace with your cron job handler URL
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ hello: "world" }), // Customize the body as needed
-        },
-      });
+      const mergent = new Mergent("BRZwxwOf70ydG46zuQ9d");
 
-      if (existingTask) {
-        // Update the existing Mergent task with the new scheduling information
-        await mergent.tasks.update(existingTask.id, {
-          delay: { minutes: 5 }, // Update the delay as needed
+      // Get the list of tasks
+      const tasks = await mergent.tasks.list();
+
+      // Check if a task with queue 'scheduled_1' already exists
+      const existingProductsTask = tasks.find(task => (task.queue === 'products' && task.status === 'queued'));
+      const existingDeleteProductsTask = tasks.find(task => (task.queue === 'delete_products' && task.status === 'queued'));
+      const existingProfilesTask = tasks.find(task => (task.queue === 'profiles' && task.status === 'queued'));
+      const existingDeleteProfilesTask = tasks.find(task => (task.queue === 'delete_profiles' && task.status === 'queued'));
+
+
+      if (existingProductsTask) {
+        // Update the existing task
+        const updatedTask = await mergent.tasks.update(existingProductsTask.id, {
+          scheduled_for: formattedDate,
+          // Other updates as needed
         });
+        console.log("Task updated:", updatedTask);
       } else {
-       */
-        // If the task doesn't exist, create a new one
-      const currentDate = new Date();
-      const targetDate = new Date(formattedDate);
-      const delayMilliseconds = targetDate - currentDate;
-
-      if (delayMilliseconds > 0) {
-        // Schedule a cron job using Mergent with the calculated delay
-        const mergent = new Mergent("BRZwxwOf70ydG46zuQ9d");
         await mergent.tasks.create({
-          queue: 'scheduled_1',
+          queue: 'products',
           request: {
-            url: "https://ecommerce-test-blond.vercel.app/api/products/createProduct", // Replace with your cron job handler URL
+            url: "https://ecommerce-test-blond.vercel.app/api/products/updateProducts",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(products), // Customize the body as needed
+            body: JSON.stringify(productsWithoutScheduleDate),
           },
-          delay: { milliseconds: delayMilliseconds }, // Use the calculated delay
+          scheduled_for: formattedDate,
         });
       }
+
+        if (existingDeleteProductsTask) {
+          const updatedTask = await mergent.tasks.update(existingDeleteProductsTask.id, {
+            scheduled_for: formattedDate,
+            // Other updates as needed
+          });
+          console.log("Task updated:", updatedTask);
+        } else {
+          await mergent.tasks.create({
+            queue: 'delete_products',
+            request: {
+              url: "https://ecommerce-test-blond.vercel.app/api/products/deleteProducts",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify([productIds]),
+            },
+            scheduled_for: formattedDate,
+          });
+        }
+
+        if (existingProfilesTask) {
+          // Update the existing task
+          const updatedTask = await mergent.tasks.update(existingProfilesTask.id, {
+            scheduled_for: formattedDate,
+            // Other updates as needed
+          });
+          console.log("Task updated:", updatedTask);
+        } else {
+          await mergent.tasks.create({
+            queue: 'products',
+            request: {
+              url: "https://ecommerce-test-blond.vercel.app/api/configProfiles/createProfiles",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(profiles),
+            },
+            scheduled_for: formattedDate,
+          });
+        }
+
+          if (existingDeleteProfilesTask) {
+            const updatedTask = await mergent.tasks.update(existingDeleteProfilesTask.id, {
+              scheduled_for: formattedDate,
+              // Other updates as needed
+            });
+            console.log("Task updated:", updatedTask);
+          } else {
+            await mergent.tasks.create({
+              queue: 'delete_products',
+              request: {
+                url: "https://ecommerce-test-blond.vercel.app/api/configProfiles/deleteProfiles",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify([productIds]),
+              },
+              scheduled_for: formattedDate,
+            });
+          }
 
       handleClose();
-      window.location.reload();
-      console.log(date);
+      //window.location.reload();
+      // console.log(date);
     } catch (error) {
       console.error(error);
     }

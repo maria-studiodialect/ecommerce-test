@@ -1,11 +1,12 @@
 import { getXataClient } from "../../../utils/xata";
 const xata = getXataClient();
 const handler = async (req, res) => {
-  // create method is used to create records in database
+  // using update method to update records in database
   try {
-    await xata.db.products.delete( ...req.body );
+    await xata.transactions.run( ...req.body );
     res.json({ message: "Success 😁" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
