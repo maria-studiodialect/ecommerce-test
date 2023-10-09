@@ -73,13 +73,14 @@ function ScheduledProducts() {
     fetchData();
   }, []);
 
+
   return (
     <div>
       <header className="mt-3 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-700">Products</h1>
         <div className="flex items-center space-x-2">
           <AddProduct />
-          <UpdateSchedule products={products} location='rec_ckfvcovuh5vee35u25vg' originalProducts={originalProducts} profiles={profiles} originalProfiles={originalProfiles }/>
+          <UpdateSchedule products={products} location='rec_ckfvcovuh5vee35u25vg' liveLocation='rec_ckfvcmde81akoi4ra9ag' originalProducts={originalProducts} profiles={profiles} originalProfiles={originalProfiles }/>
         </div>
       </header>
       <ProductHeader />

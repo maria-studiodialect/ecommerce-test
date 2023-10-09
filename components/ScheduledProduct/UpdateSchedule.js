@@ -13,14 +13,44 @@ const UpdateSchedule = ({ products, originalProducts, profiles, originalProfiles
 
   const Mergent = require("mergent");
 
-  const productsWithoutScheduleDate = products.map(product => {
-    // Destructure the product and create a new object without the scheduleDate property
-    const { scheduleDate, ...newProduct } = product;
-    return newProduct;
-  });
 
-  const productIds = originalProducts.map(item => item.id);
+  const insertProducts = products.map((product) => ({
+    insert: {
+      table: 'products',
+      record: {
+        ...product,
+        location: { id: liveLocation }, // Modify the location here
+      },
+    },
+  }));
 
+  const deleteProducts = originalProducts.map((originalProduct) => ({
+    delete: {
+      table: 'products',
+      id: originalProduct.id, // Use the unique identifier for each product
+    },
+  }));
+
+  const insertConfig = profiles.map((profile) => ({
+    insert: {
+      table: 'configProfiles',
+      record: {
+        ...profile,
+        location: { id: liveLocation }, // Modify the location here
+      },
+    },
+  }));
+
+  const deleteConfig = originalProducts.map((originalProfile) => ({
+    delete: {
+      table: 'configProfiles',
+      id: originalProfile.id, // Use the unique identifier for each product
+    },
+  }));
+
+  const combinedActions = [...deleteProducts, ...insertProducts, ...insertConfig, ...deleteConfig];
+
+  console.log(combinedActions)
   const onFormSubmit = async (e) => {
     e.preventDefault();
     const inputDate = new Date(date);
@@ -42,89 +72,31 @@ const UpdateSchedule = ({ products, originalProducts, profiles, originalProfiles
       // Get the list of tasks
       const tasks = await mergent.tasks.list();
 
+
       // Check if a task with queue 'scheduled_1' already exists
-      const existingProductsTask = tasks.find(task => (task.queue === 'products' && task.status === 'queued'));
-      const existingDeleteProductsTask = tasks.find(task => (task.queue === 'delete_products' && task.status === 'queued'));
-      const existingProfilesTask = tasks.find(task => (task.queue === 'profiles' && task.status === 'queued'));
-      const existingDeleteProfilesTask = tasks.find(task => (task.queue === 'delete_profiles' && task.status === 'queued'));
+      const existingTask = tasks.find(task => (task.queue === 'transaction' && task.status === 'queued'));
 
-
-      if (existingProductsTask) {
+      if (existingTask) {
         // Update the existing task
-        const updatedTask = await mergent.tasks.update(existingProductsTask.id, {
+        const updatedTask = await mergent.tasks.update(existingTask.id, {
           scheduled_for: formattedDate,
           // Other updates as needed
         });
         console.log("Task updated:", updatedTask);
       } else {
         await mergent.tasks.create({
-          queue: 'products',
+          queue: 'transaction',
           request: {
-            url: "https://ecommerce-test-blond.vercel.app/api/products/updateProducts",
+            url: "https://ecommerce-test-blond.vercel.app/api/transation",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(productsWithoutScheduleDate),
+            body: JSON.stringify(combinedActions),
           },
           scheduled_for: formattedDate,
         });
       }
 
-        if (existingDeleteProductsTask) {
-          const updatedTask = await mergent.tasks.update(existingDeleteProductsTask.id, {
-            scheduled_for: formattedDate,
-            // Other updates as needed
-          });
-          console.log("Task updated:", updatedTask);
-        } else {
-          await mergent.tasks.create({
-            queue: 'delete_products',
-            request: {
-              url: "https://ecommerce-test-blond.vercel.app/api/products/deleteProducts",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify([productIds]),
-            },
-            scheduled_for: formattedDate,
-          });
-        }
-
-        if (existingProfilesTask) {
-          // Update the existing task
-          const updatedTask = await mergent.tasks.update(existingProfilesTask.id, {
-            scheduled_for: formattedDate,
-            // Other updates as needed
-          });
-          console.log("Task updated:", updatedTask);
-        } else {
-          await mergent.tasks.create({
-            queue: 'products',
-            request: {
-              url: "https://ecommerce-test-blond.vercel.app/api/configProfiles/createProfiles",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(profiles),
-            },
-            scheduled_for: formattedDate,
-          });
-        }
-
-          if (existingDeleteProfilesTask) {
-            const updatedTask = await mergent.tasks.update(existingDeleteProfilesTask.id, {
-              scheduled_for: formattedDate,
-              // Other updates as needed
-            });
-            console.log("Task updated:", updatedTask);
-          } else {
-            await mergent.tasks.create({
-              queue: 'delete_products',
-              request: {
-                url: "https://ecommerce-test-blond.vercel.app/api/configProfiles/deleteProfiles",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify([productIds]),
-              },
-              scheduled_for: formattedDate,
-            });
-          }
-
       handleClose();
-      //window.location.reload();
+      // window.location.reload();
       // console.log(date);
     } catch (error) {
       console.error(error);
