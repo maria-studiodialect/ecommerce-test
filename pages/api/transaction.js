@@ -1,4 +1,4 @@
-import { getXataClient } from "../../../utils/xata";
+import { getXataClient } from "../../utils/xata";
 const xata = getXataClient();
 const handler = async (req, res) => {
   // using update method to update records in database
